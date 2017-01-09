@@ -20,10 +20,14 @@ extern LinkList FeasibleList;                                                   
 extern TreeMaze LabyrinthTree;                                                      //行走路线树
 extern Point CavalierPoint;                                                         //骑士所在的位置
 extern Point PrincessPoint;                                                         //公主所在的位置
+extern TreeMaze FindPrincess;
 
 bool InitMazeData(void);                                                     //初始化重要的人物所在点
 bool InitListData(void);                                                     //初始化可行列链表中的数值
 bool InitTreeData(void);                                                     //初始化树中的值
+LinkList *FindSonWay(Point);
+bool ShowWay(TreeMaze*);
+
 /*
 ##########
 #  #   # 0

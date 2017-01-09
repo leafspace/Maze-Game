@@ -4,6 +4,7 @@ LinkList FeasibleList;                                                       //±
 TreeMaze LabyrinthTree;                                                      //ĞĞ×ßÂ·ÏßÊ÷
 Point CavalierPoint;                                                         //ÆïÊ¿ËùÔÚµÄÎ»ÖÃ
 Point PrincessPoint;                                                         //¹«Ö÷ËùÔÚµÄÎ»ÖÃ
+TreeMaze FindPrincess;                                                       //ÕÒµ½¹«Ö÷µÄ·½·¨
 
 int main()
 {
@@ -15,6 +16,11 @@ int main()
 		cout << "This map init ok!" << endl;
 	}
 	InitListData();
+	LabyrinthTree.InsertData(CavalierPoint);
 	InitTreeData();
+
+	cout << "[" << PrincessPoint.GetX() << "," << PrincessPoint.GetY() << "]";
+	ShowWay(&LabyrinthTree);
+	cout << "<-[" << CavalierPoint.GetX() << "," << CavalierPoint.GetY() << "]";
 	return 0;
 }

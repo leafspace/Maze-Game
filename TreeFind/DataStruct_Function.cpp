@@ -22,6 +22,15 @@ void Point::ClearData(void)
 	y = 0;                                                                   //Çå³ıµãYµÄÊı¾İ
 }
 
+bool operator==(Point point_A, Point point_B)
+{
+	if (point_A.GetX() == point_B.GetX() && point_A.GetY() == point_B.GetY()) {
+		return true;
+	}
+	return false;
+}
+
+
 LNode::LNode()                                                               //ĞÂ½¨Õâ¸ö½ÚµãµÄÊ±ºò£¬ÎªÏÂÃæÕâ¸ö×ÓÊ÷·ÖÅä¿Õ¼ä 
 {
 	//data = (TreeMaze*)malloc(sizeof(TreeMaze));                            //ÎªLNode³õÊ¼»¯¿Õ¼ä
@@ -31,18 +40,21 @@ int LinkList::getNodeNumber()                                                //»
 {
 	return nodeNumber;
 }
+
 void LinkList::InsertData(Point data)
 {
 	if (nodeNumber == 0) {                                                   //µ±½ÚµãÊıÎª0Ê±
 		head = tail = (LNode*)malloc(sizeof(LNode));                         //´ËÊ±ĞÂ½¨Ò»¸ö½Úµã£¬Í·½ÚµãÎ²½Úµã¶¼ÊÇ´Ë½Úµã
 		head->data = (ElemType*)malloc(sizeof(ElemType));                    //ÎªLNode³õÊ¼»¯¿Õ¼ä
 		head->data->InsertData(data);                                        //¸³Öµ¸ø½ÚµãµÄÊı¾İ²¿·Ö
+		head->data->SetSonTree(NULL);
 		head->next = NULL;                                                   //´Ë½ÚµãµÄÏÂÒ»½ÚµãÎª¿Õ
 	}
 	else {                                                                   //´ËÊ±Á´±íÓĞ¶à¸ö½Úµã
 		LNode *temp = (LNode*)malloc(sizeof(LNode));                         //ĞÂ½¨½Úµã
 		temp->data = (ElemType*)malloc(sizeof(ElemType));                    //ÎªLNode³õÊ¼»¯¿Õ¼ä
 		temp->data->InsertData(data);                                        //Ìî³äÊı¾İ
+		temp->data->SetSonTree(NULL);
 		temp->next = NULL;                                                   //Êı¾İÏîµÄÎ²²¿Îª¿Õ
 		tail->next = temp;                                                   //½«Î²½ÚµãÓëĞÂ½¨½ÚµãÁ¬½Ó
 		tail = temp;                                                         //´ËÊ±ĞÂ½Úµã¼°ÎªĞÂµÄÎ²½Úµã
@@ -106,9 +118,40 @@ bool LinkList::DeleteData(Point data)
 	return true;
 }
 
+int LinkList::SearchNode(Point data)
+{
+	int index = 0;
+	LNode *temp = this->head;
+	while (temp){
+		if (temp->data->GetPoint() == data) {
+			return index;
+		}
+		temp = temp->next;
+		++index;
+	}
+	return -1;
+}
+
 LNode LinkList::GetListNode(void)
 {
 	return *head;                                                            //·µ»ØÍ·½ÚµãÖ¸ÏòµÄÊı¾İ
+}
+
+LNode *LinkList::GetListNode(int index)
+{
+	if (index < 0 || index > nodeNumber) {
+		cout << "Error : Get list node over !" << endl;
+		return NULL;
+	}
+	else {
+		LNode *temp = this->head;
+		for (int i = 0; i < nodeNumber; ++i) {
+			if (i == index) {
+				return temp;
+			}
+			temp = temp->next;
+		}
+	}
 }
 
 void LinkList::ShowList(void)
@@ -139,4 +182,39 @@ void TreeMaze::InsertData(Point data)
 Point TreeMaze::GetPoint(void)
 {
 	return Point(data.GetX(), data.GetY());                                  //·µ»ØÊı¾İ²¿·Ö
+}
+
+int TreeMaze::GetDepth(void)
+{
+	if (this->sonTree == NULL) {
+		return 1;
+	}
+	else {
+		int sumDepth = 0;
+		for (int i = 0; i < this->sonTree->getNodeNumber(); ++i) {
+			LNode *tempNode = this->sonTree->GetListNode(i);
+			sumDepth += tempNode->data->GetDepth();
+		}
+		return sumDepth;
+	}
+	return 0;
+}
+
+LNode *TreeMaze::GetSonNode(int index)
+{
+	return sonTree->GetListNode(index);
+}
+
+void TreeMaze::SetSonTree(LinkList *sonTree)
+{
+	this->sonTree = sonTree;
+}
+
+int TreeMaze::GetSonNodeNumber(void)
+{
+	if (this->sonTree == NULL) {
+		return 0;
+	}else{
+		return sonTree->getNodeNumber();
+	}
 }

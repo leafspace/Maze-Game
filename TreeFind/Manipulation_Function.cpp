@@ -1,4 +1,5 @@
 #include "PublicResources_Header.h"
+#include <vector>
 
 bool InitMazeData(void)
 {
@@ -31,25 +32,98 @@ bool InitListData(void)
 		}
 	}
 	FeasibleList.ShowList();
-	//Test delete
-	/*
-	{
-		FeasibleList.DeleteData();
-		FeasibleList.DeleteData(Point(1, 1));
-		FeasibleList.DeleteData(Point(1, 2));
-		FeasibleList.DeleteData(Point(5, 6));
-		FeasibleList.DeleteData(Point(8, 7));
-		FeasibleList.DeleteData(Point(8, 8));
-	}
-	*/
 	return true;
 }
 
 bool InitTreeData(void)
 {
-	while (FeasibleList.getNodeNumber()) {
+	vector<TreeMaze*> leafs;
+	leafs.push_back(&LabyrinthTree);
+	while (FeasibleList.getNodeNumber()){
+		//1)为底层数据找下一层数据
+		for (int i = 0; i < leafs.size(); ++i) {
+			Point sonPoint = leafs[i]->GetPoint();
+			leafs[i]->SetSonTree(FindSonWay(sonPoint));
+		}
+		
+		vector<TreeMaze*> tempLeafs = leafs;
+		leafs.clear();
 
+		for (int i = 0; i < tempLeafs.size(); ++i) {
+			for (int j = 0; j < tempLeafs[i]->GetSonNodeNumber(); ++j) {
+				leafs.push_back(tempLeafs[i]->GetSonNode(j)->data);
+			}
+		}
+		tempLeafs.clear();
+
+		if (FeasibleList.getNodeNumber() == 0) {
+			return true;
+		}
 	}
+	return true;
 }
 
 
+LinkList *FindSonWay(Point data)
+{
+	LinkList *sonWay = new LinkList;
+	Point up = Point(data.GetX(), data.GetY() - 1);
+	Point down = Point(data.GetX(), data.GetY() + 1);
+	Point left = Point(data.GetX() - 1, data.GetY());
+	Point right = Point(data.GetX() + 1, data.GetY());
+
+	bool flag = false;
+
+	if (FeasibleList.SearchNode(up) != -1) {
+		sonWay->InsertData(up);
+		FeasibleList.DeleteData(up);
+		flag = true;
+	}
+	if (FeasibleList.SearchNode(down) != -1) {
+		sonWay->InsertData(down);
+		FeasibleList.DeleteData(down);
+		flag = true;
+	}
+	if (FeasibleList.SearchNode(left) != -1) {
+		sonWay->InsertData(left);
+		FeasibleList.DeleteData(left);
+		flag = true;
+	}
+	if (FeasibleList.SearchNode(right) != -1) {
+		sonWay->InsertData(right);
+		FeasibleList.DeleteData(right);
+		flag = true;
+	}
+	if (flag == false) {
+		return NULL;
+	}else{
+		return  sonWay;
+	}
+}
+
+bool ShowWay(TreeMaze* tree) 
+{
+	Point princessUp = Point(PrincessPoint.GetX(), PrincessPoint.GetY() - 1);
+	Point princessDown = Point(PrincessPoint.GetX(), PrincessPoint.GetY() + 1);
+	Point princessLeft = Point(PrincessPoint.GetX() - 1, PrincessPoint.GetY());
+	Point princessRight = Point(PrincessPoint.GetX() + 1, PrincessPoint.GetY());
+
+	if (tree->GetSonNodeNumber() == 0) {
+		if (tree->GetPoint() == princessUp || tree->GetPoint() == princessDown
+			|| tree->GetPoint() == princessLeft || tree->GetPoint() == princessRight) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		for (int i = 0; i < tree->GetSonNodeNumber(); ++i) {
+			if (ShowWay(tree->GetSonNode(i)->data)) {
+				cout << "<-[" << tree->GetSonNode(i)->data->GetPoint().GetX() << "," << tree->GetSonNode(i)->data->GetPoint().GetY() << "]";
+				return true;
+			}
+		}
+	}
+	return false;
+}
